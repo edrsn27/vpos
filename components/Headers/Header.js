@@ -27,7 +27,7 @@ export default function Example() {
           {
             id: "dashboard",
             name: "Dashboard",
-            href: "/",
+            href: "/dashboard",
           },
           {
             id: "pos",
