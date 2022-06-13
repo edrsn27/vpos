@@ -1,25 +1,14 @@
-import { Fragment, useState } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { Dialog, Popover, Tab, Transition } from "@headlessui/react";
 import {
   MenuIcon,
   SearchIcon,
   ShoppingBagIcon,
   XIcon,
+  LogoutIcon,
 } from "@heroicons/react/outline";
 import { useRouter } from "next/router";
-
-const navigation = {
-  categories: [
-    {
-      id: "dashboard",
-      name: "Dashboard",
-    },
-    {
-      id: "pos",
-      name: "Point of Sales",
-    },
-  ],
-};
+import { useAuth } from "../../context/AuthProvider";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -28,7 +17,25 @@ function classNames(...classes) {
 export default function Example() {
   const [open, setOpen] = useState(false);
   const { push } = useRouter();
+  const { currentUser, signout } = useAuth();
 
+  const [navigation, setNavigation] = useState("");
+  useEffect(() => {
+    if (currentUser)
+      setNavigation({
+        categories: [
+          {
+            id: "dashboard",
+            name: "Dashboard",
+          },
+          {
+            id: "pos",
+            name: "Point of Sales",
+          },
+        ],
+      });
+    else setNavigation({ categories: [] });
+  }, []);
   return (
     <div className="bg-white">
       {/* Mobile menu */}
@@ -72,21 +79,22 @@ export default function Example() {
                 <Tab.Group as="div" className="mt-2">
                   <div className="border-b border-gray-200">
                     <Tab.List className="flex px-4 -mb-px space-x-8">
-                      {navigation.categories.map((category) => (
-                        <Tab
-                          key={category.name}
-                          className={({ selected }) =>
-                            classNames(
-                              selected
-                                ? "text-indigo-600 border-indigo-600"
-                                : "text-gray-900 border-transparent",
-                              "flex-1 whitespace-nowrap py-4 px-1 border-b-2 text-base font-medium"
-                            )
-                          }
-                        >
-                          {category.name}
-                        </Tab>
-                      ))}
+                      {navigation &&
+                        navigation.categories.map((category) => (
+                          <Tab
+                            key={category.name}
+                            className={({ selected }) =>
+                              classNames(
+                                selected
+                                  ? "text-indigo-600 border-indigo-600"
+                                  : "text-gray-900 border-transparent",
+                                "flex-1 whitespace-nowrap py-4 px-1 border-b-2 text-base font-medium"
+                              )
+                            }
+                          >
+                            {category.name}
+                          </Tab>
+                        ))}
                     </Tab.List>
                   </div>
                 </Tab.Group>
@@ -160,63 +168,66 @@ export default function Example() {
               {/* Flyout menus */}
               <Popover.Group className="hidden lg:ml-8 lg:block lg:self-stretch">
                 <div className="flex h-full space-x-8">
-                  {navigation.categories.map((category) => (
-                    <Popover key={category.name} className="flex">
-                      {({ open }) => (
-                        <>
-                          <div className="relative flex">
-                            <Popover.Button
-                              className={classNames(
-                                open
-                                  ? "border-indigo-600 text-indigo-600"
-                                  : "border-transparent text-gray-700 hover:text-gray-800",
-                                "relative z-10 flex items-center transition-colors ease-out duration-200 text-sm font-medium border-b-2 -mb-px pt-px"
-                              )}
-                            >
-                              {category.name}
-                            </Popover.Button>
-                          </div>
+                  {navigation &&
+                    navigation.categories.map((category) => (
+                      <Popover key={category.name} className="flex">
+                        {({ open }) => (
+                          <>
+                            <div className="relative flex">
+                              <Popover.Button
+                                className={classNames(
+                                  open
+                                    ? "border-indigo-600 text-indigo-600"
+                                    : "border-transparent text-gray-700 hover:text-gray-800",
+                                  "relative z-10 flex items-center transition-colors ease-out duration-200 text-sm font-medium border-b-2 -mb-px pt-px"
+                                )}
+                              >
+                                {category.name}
+                              </Popover.Button>
+                            </div>
 
-                          <Transition
-                            as={Fragment}
-                            enter="transition ease-out duration-200"
-                            enterFrom="opacity-0"
-                            enterTo="opacity-100"
-                            leave="transition ease-in duration-150"
-                            leaveFrom="opacity-100"
-                            leaveTo="opacity-0"
-                          >
-                            <Popover.Panel className="absolute inset-x-0 text-sm text-gray-500 top-full">
-                              {/* Presentational element used to render the bottom shadow, if we put the shadow on the actual panel it pokes out the top, so we use this shorter element to hide the top of the shadow */}
-                              <div
-                                className="absolute inset-0 bg-white shadow top-1/2"
-                                aria-hidden="true"
-                              />
-                            </Popover.Panel>
-                          </Transition>
-                        </>
-                      )}
-                    </Popover>
-                  ))}
+                            <Transition
+                              as={Fragment}
+                              enter="transition ease-out duration-200"
+                              enterFrom="opacity-0"
+                              enterTo="opacity-100"
+                              leave="transition ease-in duration-150"
+                              leaveFrom="opacity-100"
+                              leaveTo="opacity-0"
+                            >
+                              <Popover.Panel className="absolute inset-x-0 text-sm text-gray-500 top-full">
+                                {/* Presentational element used to render the bottom shadow, if we put the shadow on the actual panel it pokes out the top, so we use this shorter element to hide the top of the shadow */}
+                                <div
+                                  className="absolute inset-0 bg-white shadow top-1/2"
+                                  aria-hidden="true"
+                                />
+                              </Popover.Panel>
+                            </Transition>
+                          </>
+                        )}
+                      </Popover>
+                    ))}
                 </div>
               </Popover.Group>
 
               <div className="flex items-center ml-auto">
-                <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
-                  <a
-                    onClick={() => push("/auth/sign-in")}
-                    className="text-sm font-medium text-gray-700 cursor-pointer hover:text-gray-800"
-                  >
-                    Sign in
-                  </a>
-                  <span className="w-px h-6 bg-gray-200" aria-hidden="true" />
-                  <a
-                    onClick={() => push("/auth/sign-up")}
-                    className="text-sm font-medium text-gray-700 cursor-pointer hover:text-gray-800"
-                  >
-                    Create account
-                  </a>
-                </div>
+                {!currentUser && (
+                  <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
+                    <a
+                      onClick={() => push("/auth/sign-in")}
+                      className="text-sm font-medium text-gray-700 cursor-pointer hover:text-gray-800"
+                    >
+                      Sign in
+                    </a>
+                    <span className="w-px h-6 bg-gray-200" aria-hidden="true" />
+                    <a
+                      onClick={() => push("/auth/sign-up")}
+                      className="text-sm font-medium text-gray-700 cursor-pointer hover:text-gray-800"
+                    >
+                      Create account
+                    </a>
+                  </div>
+                )}
 
                 <div className="hidden lg:ml-8 lg:flex">
                   <a
@@ -254,6 +265,19 @@ export default function Example() {
                     <span className="sr-only">items in cart, view bag</span>
                   </a>
                 </div>
+
+                {currentUser && (
+                  <div className="flex lg:ml-6">
+                    <a
+                      href="#"
+                      className="p-2 text-gray-400 hover:text-gray-500"
+                      onClick={signout}
+                    >
+                      <span className="sr-only">Signout</span>
+                      <LogoutIcon className="w-6 h-6" aria-hidden="true" />
+                    </a>
+                  </div>
+                )}
               </div>
             </div>
           </div>

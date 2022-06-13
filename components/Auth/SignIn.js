@@ -2,7 +2,9 @@ import { useState } from "react";
 import { LockClosedIcon } from "@heroicons/react/solid";
 import { useAuth } from "../../context/AuthProvider";
 import Alert from "../Globals/Alerts/Alert";
+import { useRouter } from "next/router";
 export default function Example() {
+  const { push } = useRouter();
   const { signin } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -15,6 +17,7 @@ export default function Example() {
     setError("");
     try {
       await signin(email, password);
+      push("/merchant")
     } catch (error) {
       setError(error.message);
       console.log(error);
