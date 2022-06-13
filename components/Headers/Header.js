@@ -27,15 +27,22 @@ export default function Example() {
           {
             id: "dashboard",
             name: "Dashboard",
+            href: "/",
           },
           {
             id: "pos",
             name: "Point of Sales",
+            href: "/point-of-sales",
+          },
+          {
+            id: "store",
+            name: "Store",
+            href: "/store",
           },
         ],
       });
     else setNavigation({ categories: [] });
-  }, []);
+  }, [currentUser]);
   return (
     <div className="bg-white">
       {/* Mobile menu */}
@@ -175,6 +182,10 @@ export default function Example() {
                           <>
                             <div className="relative flex">
                               <Popover.Button
+                              onClick={(e) => {
+                                e.preventDefault();
+                                push(category.href);
+                              }}
                                 className={classNames(
                                   open
                                     ? "border-indigo-600 text-indigo-600"
